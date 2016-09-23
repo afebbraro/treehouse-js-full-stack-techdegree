@@ -1,0 +1,104 @@
+/* Layout */
+.container {
+    background-color: #3454D1;
+    color: white;
+    font-family: 'Playfair Display', serif;
+    padding: 2rem 1rem;
+    text-align: center;
+}
+
+.container--bg-secondary {
+    background-color: #2E1F27;
+}
+.container--bg-secondary .btn {
+    background-color: #2E1F27;
+}
+
+.quote-box {
+    line-height: 0.5;
+    margin: 6rem auto;
+    width: 80%;
+}
+
+/* Quotes */
+.quote {
+    font-size: 2.5rem;
+    font-weight: 400;
+    line-height: 1.1;
+    margin: 0;
+    position: relative;
+    text-align: left;
+  }
+.quote:before, .quote:after {
+    font-size: 3rem;
+    line-height: 2.5rem;
+    position: absolute;
+}
+.quote:before {
+    content: "“";
+    left: -0.5em;
+    top: 0.25em;
+}
+.quote:after {
+    bottom: -0.1em;
+    content: "”";
+    margin-left: 0.1em;
+    position: absolute;
+}
+
+/* Source */
+.source {
+    letter-spacing: 0.05em;
+    line-height: 1.1;
+    text-align: right;
+}
+.source:before {
+    content: "—";
+}
+
+.source__citation {
+    font-style: italic;
+}
+.source__citation:before {
+    content: ", ";
+    font-style: normal;
+}
+
+.source__year:before {
+    content: ", ";
+    font-style: normal;
+}
+
+/* Button */
+.btn {
+    background-color: #3454D1;
+    border: 0.125rem solid #fff;
+    border-radius: 0.25rem;
+    color: #fff;
+    display: inline-block;
+    padding: 15px 0;
+    transition: 0.5s ;
+    width: 12em;
+}
+.btn:hover {
+    background-color: rgba(255,255,255,.25);
+}
+.btn:focus {
+    outline: 0.125rem solid rgba(255,255,255,.25);
+}
+
+@media (min-width: 35rem) {
+    .quote-box {
+        margin: 13rem auto;
+    }
+    .quote {
+        font-size: 4rem;
+    }
+    .quote:before, .quote:after {
+        font-size: 6rem;
+    }
+    .quote__source {
+        font-size: 1.25rem;
+        padding-right: 4rem;
+    }
+}
