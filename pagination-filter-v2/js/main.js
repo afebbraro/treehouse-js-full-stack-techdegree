@@ -4,37 +4,21 @@ var students = document.getElementById('js-student-list').querySelectorAll('li')
     showLimit = 10,
     pagesNeeded,
     newUl = document.createElement('ul'),
-    pagLinks = paginationDiv.getElementsByTagName('a');
+    pagLinks = paginationDiv.getElementsByTagName('a'),
+    studentsArray;
+
+    studentsArray = Array.apply(null, students);
 
 // function to create pagination HTML
-// <div class="pagination">
-//   <ul>
-//     <li>
-//       <a class="active" href="#">1</a>
-//     </li>
-//      <li>
-//       <a href="#">2</a>
-//     </li>
-//      <li>
-//       <a href="#">3</a>
-//     </li>
-//      <li>
-//       <a href="#">4</a>
-//     </li>
-//      <li>
-//       <a href="#">5</a>
-//     </li>
-//   </ul>
-// </div>
 function addPaginationLinks() {
     // add the newly created element and its content into the DOM
     // calculate the # of pages needed
-    pagesNeeded = students.length / showLimit; // students.length = typeof number
+    pagesNeeded = studentsArray.length / showLimit; // studentsArray.length = typeof number
 
-    // rounding up
+    // rounding up so we don't lose students
     pagesNeeded = Math.ceil(pagesNeeded);
 
-    // remove the hide class to display the div
+    // remove the hide class to display the paginationDiv
     paginationDiv.classList.remove('hide');
 
     for (var i = 1; i < pagesNeeded + 1; i++) {
@@ -43,7 +27,7 @@ function addPaginationLinks() {
 
         // append a to li
         newLi.appendChild(newLink);
-        newLink.href = '#' + i;
+        newLink.dataset.group = i;
 
         // add page number to link
         newLink.innerHTML = i;
@@ -62,20 +46,51 @@ window.onload = function() {
         for (var i = 0; i < pagLinks.length; ++i) {
             var link = pagLinks[i];
             link.classList.remove('active');
+            link.classList.remove('show');
         }
 
         // add active class to the clicked link
         this.classList.add('active');
 
-        // When a user clicks on first link in pagination list students 1 through 10 are shown and the rest are hidden
-        if (this.href='#1') {
-            for (var i = 0; i < showLimit; i++) {
-                students[i].classList.add('show');
+        var pagNum = parseInt(this.dataset.group),
+            rangeArray,
+            rangeMax,
+            rangeMin;
+
+        // ex. 10 = 1 * 10
+        rangeMax = pagNum * showLimit;
+
+        // ex. 0 = 10 - 10
+        rangeMin = rangeMax - showLimit;
+
+        // define the range of students
+        rangeArray = studentsArray.slice(rangeMin,rangeMax);
+
+        // iterate through all students and apply hide class
+        for (var y = 0; y < studentsArray.length; ++y) {
+            // add each student to the array
+            var individualStudent = studentsArray[y];
+
+            // if student doesn't have hide, add it
+            if (!individualStudent.classList.contains('hide')) {
+                individualStudent.classList.add('hide');
             }
-        } else if (this.href='#2') { // students 11 through 20 are shown, rest hidden
-            for (var i = 11; i < 21; i++) {
-                students[i].classList.add('show');
+
+            // if student has show class, remove it
+            if (individualStudent.classList.contains('show')) {
+                individualStudent.classList.remove('show');
             }
+        }
+
+        // iterate through the students in the range and show them
+        for (var x = 0; x < rangeArray.length; ++x) {
+            var student = rangeArray[x];
+
+            if (individualStudent.classList.contains('hide')) {
+                student.classList.remove('hide');
+            }
+
+            student.classList.add('show');
         }
     }
 
@@ -89,14 +104,8 @@ window.onload = function() {
 
         // call activateLink and add active class
         link.addEventListener('click', activateLink, false);
+
+        // trigger click on page load of first link in list
+        pagLinks[0].click();
     }
-
-    // When a user clicks on third link in pagination list then students 21 through 30 are shown, rest hidden
-    // When a user clicks on fourth link in pagination list then students 31 through 40 are shown, rest hidden
-
-    // When a user clicks on fifth link in pagination list then students 41 through 50 are shown, rest hidden
-
-
-    // should work for any number of students
-
 };
