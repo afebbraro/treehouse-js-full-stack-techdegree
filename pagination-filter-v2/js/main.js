@@ -7,6 +7,7 @@ var students = document.getElementById('js-student-list').querySelectorAll('li')
     pagLinks = paginationDiv.getElementsByTagName('a'),
     studentsArray;
 
+    // convert students(nodelist) to an Array
     studentsArray = Array.apply(null, students);
 
 // function to create pagination HTML
@@ -104,8 +105,8 @@ window.onload = function() {
 
         // call activateLink and add active class
         link.addEventListener('click', activateLink, false);
-
-        // trigger click on page load of first link in list
-        pagLinks[0].click();
     }
+
+    // trigger click on page load of first link in list
+    pagLinks[0].click();
 };
