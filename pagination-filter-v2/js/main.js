@@ -8,22 +8,19 @@
 */
 
 // get the number of students in the list by doing a query on the studentlist ul for li elements, type = num
-var students = document.getElementById('js-student-list').querySelectorAll('li'),
+var students = document.getElementById('js-student-list'),
     paginationDiv = document.getElementById('js-pagination'),
     showLimit = 10,
-    pagesNeeded,
     newUl = document.createElement('ul'),
     pagLinks = paginationDiv.getElementsByTagName('a'),
-    studentsArray;
-
     // convert students(nodelist) to an Array
-    studentsArray = Array.apply(null, students);
+    studentsArray = Array.apply(null, students.querySelectorAll('li'));
 
 // function to create pagination HTML
 function addPaginationLinks() {
     // add the newly created element and its content into the DOM
     // calculate the # of pages needed
-    pagesNeeded = studentsArray.length / showLimit; // studentsArray.length = typeof number
+    var pagesNeeded = studentsArray.length / showLimit; // studentsArray.length = typeof number
 
     // rounding up so we don't lose students
     pagesNeeded = Math.ceil(pagesNeeded);
@@ -50,63 +47,116 @@ function addPaginationLinks() {
     paginationDiv.appendChild(newUl);
 }
 
-window.onload = function() {
-    function activateLink() {
-        // remove active class from all links
-        for (var i = 0; i < pagLinks.length; ++i) {
-            var link = pagLinks[i];
-            link.classList.remove('active');
-            link.classList.remove('show');
+function activateLink() {
+    var pagNum = parseInt(this.dataset.group),
+        rangeArray,
+        rangeMax,
+        rangeMin;
+
+    // remove active class from all links
+    for (var i = 0; i < pagLinks.length; ++i) {
+        var link = pagLinks[i];
+        link.classList.remove('active');
+        link.classList.remove('show');
+    }
+
+    // add active class to the clicked link
+    this.classList.add('active');
+
+    // ex. 10 = 1 * 10
+    rangeMax = pagNum * showLimit;
+
+    // ex. 0 = 10 - 10
+    rangeMin = rangeMax - showLimit;
+
+    // define the range of students
+    rangeArray = studentsArray.slice(rangeMin,rangeMax);
+
+    // iterate through all students and apply hide class
+    for (var y = 0; y < studentsArray.length; ++y) {
+        // add each student to the array
+        var individualStudent = studentsArray[y];
+
+        // if student doesn't have hide, add it
+        if (!individualStudent.classList.contains('hide')) {
+            individualStudent.classList.add('hide');
         }
 
-        // add active class to the clicked link
-        this.classList.add('active');
-
-        var pagNum = parseInt(this.dataset.group),
-            rangeArray,
-            rangeMax,
-            rangeMin;
-
-        // ex. 10 = 1 * 10
-        rangeMax = pagNum * showLimit;
-
-        // ex. 0 = 10 - 10
-        rangeMin = rangeMax - showLimit;
-
-        // define the range of students
-        rangeArray = studentsArray.slice(rangeMin,rangeMax);
-
-        // iterate through all students and apply hide class
-        for (var y = 0; y < studentsArray.length; ++y) {
-            // add each student to the array
-            var individualStudent = studentsArray[y];
-
-            // if student doesn't have hide, add it
-            if (!individualStudent.classList.contains('hide')) {
-                individualStudent.classList.add('hide');
-            }
-
-            // if student has show class, remove it
-            if (individualStudent.classList.contains('show')) {
-                individualStudent.classList.remove('show');
-            }
-        }
-
-        // iterate through the students in the range and show them
-        for (var x = 0; x < rangeArray.length; ++x) {
-            var student = rangeArray[x];
-
-            if (individualStudent.classList.contains('hide')) {
-                student.classList.remove('hide');
-            }
-
-            student.classList.add('show');
+        // if student has show class, remove it
+        if (individualStudent.classList.contains('show')) {
+            individualStudent.classList.remove('show');
         }
     }
 
+    // iterate through the students in the range and show them
+    for (var x = 0; x < rangeArray.length; ++x) {
+        var student = rangeArray[x];
 
+        if (individualStudent.classList.contains('hide')) {
+            student.classList.remove('hide');
+        }
+
+        student.classList.add('show');
+    }
+}
+
+function searchStudents() {
+    // construct search box html
+    var newDiv = document.createElement('div'),
+        newInput = document.createElement('input'),
+        newButton = document.createElement('button');
+
+        // add input and btn to search box div
+        newDiv.appendChild(newInput);
+        newDiv.appendChild(newButton);
+
+        // add class name, input placeholder txt and btn text
+        newDiv.className = 'student-search';
+        newInput.placeholder = 'Search for students...';
+        newButton.innerHTML = 'Search';
+        newInput.id = 'js-search-box'
+
+        // append new search box div inside the page header
+        document.getElementById('js-page-header').appendChild(newDiv);
+
+        // on click call searchFilter func
+        newButton.addEventListener('click', searchFilter, false);
+}
+
+function searchFilter() {
+    var searchTerm = document.getElementById('js-search-box').value; // get text that user typed in search box
+
+    searchTerm = searchTerm.toLowerCase();
+
+    function isMatch(el) {
+        return (el.getElementsByTagName('h3')[0].textContent === searchTerm);
+    }
+
+    // matches is an array
+    var matches = studentsArray.filter(isMatch);
+
+    // check if there are matches
+    if (matches.length === 0) {
+        students.innerHTML = 'Sorry, there are no matches.';
+    } else {
+        // empty out students list
+        students.innerHTML = '';
+
+        // need to append each match individually
+        for (var i = 0; i < matches.length; i++) {
+            students.appendChild(matches[i]);
+        }
+    }
+
+//indexOf
+    // hide page links
+    paginationDiv.classList.add('hide');
+}
+
+window.onload = function() {
     // call functions
     addPaginationLinks();
+    searchStudents();
 
     // iterate through the node list of links and add an event listener on each link that calls activateLink on click
     for (var i = 0; i < pagLinks.length; ++i) {
