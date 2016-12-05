@@ -8,13 +8,14 @@
 */
 
 // get the number of students in the list by doing a query on the studentlist ul for li elements, type = num
-var students = document.getElementById('js-student-list'),
+var students = document.getElementById('js-student-list'), // student list
     paginationDiv = document.getElementById('js-pagination'),
-    showLimit = 10,
-    newUl = document.createElement('ul'),
+    showLimit = 10, // max number of students to show per page
+    newUl = document.createElement('ul'), // ul for the page links
     pagLinks = paginationDiv.getElementsByTagName('a'),
     // convert students(nodelist) to an Array
     studentsArray = Array.apply(null, students.querySelectorAll('li'));
+
 
 // function to create pagination HTML
 function addPaginationLinks() {
@@ -47,21 +48,22 @@ function addPaginationLinks() {
     paginationDiv.appendChild(newUl);
 }
 
-function activateLink() {
-    var pagNum = parseInt(this.dataset.group),
-        rangeArray,
-        rangeMax,
-        rangeMin;
-
+function activateLink(link, thisThing) {
     // remove active class from all links
     for (var i = 0; i < pagLinks.length; ++i) {
         var link = pagLinks[i];
         link.classList.remove('active');
-        link.classList.remove('show');
     }
 
     // add active class to the clicked link
-    this.classList.add('active');
+    thisThing.classList.add('active');
+    paginateStudents(parseInt(link.dataset.group));
+}
+
+function paginateStudents(pagNum) {
+    var rangeArray,
+        rangeMax,
+        rangeMin;
 
     // ex. 10 = 1 * 10
     rangeMax = pagNum * showLimit;
@@ -123,34 +125,63 @@ function searchStudents() {
         newButton.addEventListener('click', searchFilter, false);
 }
 
-function searchFilter() {
-    var searchTerm = document.getElementById('js-search-box').value; // get text that user typed in search box
+function clearStudents() {
+    // empty out students list
+    for (var a = 0; a < studentsArray.length; a++) {
+        if (studentsArray[a].classList.contains('show')) {
+            studentsArray[a].classList.remove('show');
+        }
 
+        studentsArray[a].classList.add('hide');
+    }
+}
+
+function searchFilter() {
+    var searchTerm = document.getElementById('js-search-box').value, // get text that user typed in search box
+        errorMsgNode = document.createTextNode('Sorry, there are no matches.'),
+        errorMsgLi = document.createElement('li');
+
+    errorMsgLi.id = 'js-search-box-error-msg';
     searchTerm = searchTerm.toLowerCase();
 
-    function isMatch(el) {
-        return (el.getElementsByTagName('h3')[0].textContent === searchTerm);
-    }
-
     // matches is an array
-    var matches = studentsArray.filter(isMatch);
+    var matches = studentsArray.filter(function(el) {
+        return (el.getElementsByTagName('h3')[0].textContent === searchTerm);
+    });
 
     // check if there are matches
-    if (matches.length === 0) {
-        students.innerHTML = 'Sorry, there are no matches.';
-    } else {
-        // empty out students list
-        students.innerHTML = '';
+    if (searchTerm !== '') {
+        if (matches.length === 0) {
+            // hide the student list
+            clearStudents();
 
-        // need to append each match individually
-        for (var i = 0; i < matches.length; i++) {
-            students.appendChild(matches[i]);
+            // insert text msg into li element
+            errorMsgLi.appendChild(errorMsgNode);
+
+            // insert error msg li into page
+            students.appendChild(errorMsgLi);
+        } else { // there are matches
+            // hide the student list
+            clearStudents();
+
+            // show matches
+            for (var i = 0; i < matches.length; i++) {
+                students.appendChild(matches[i]);
+                matches[i].classList.add('show'); // need to show each match individually
+            }
+        }
+        // hide page links
+        paginationDiv.classList.add('hide');
+    } else { // search field is submitted empty
+        // hide the error msg
+        var errorMsg = document.getElementById('js-search-box-error-msg');
+        if (errorMsg) {
+            errorMsg.classList.add('hide');
+            paginateStudents(1);
+            paginationDiv.classList.remove('hide');
+            paginationDiv.classList.add('show');
         }
     }
-
-//indexOf
-    // hide page links
-    paginationDiv.classList.add('hide');
 }
 
 window.onload = function() {
@@ -158,14 +189,13 @@ window.onload = function() {
     addPaginationLinks();
     searchStudents();
 
-    // iterate through the node list of links and add an event listener on each link that calls activateLink on click
+    // iterate through links and add an event listener on each link that calls activateLink on click
     for (var i = 0; i < pagLinks.length; ++i) {
         var link = pagLinks[i];
-
-        // call activateLink and add active class
-        link.addEventListener('click', activateLink, false);
+        var thisThing = this;
+        link.addEventListener('click', activateLink(link, thisThing), false);
     }
 
-    // trigger click on page load of first link in list
-    pagLinks[0].click();
+    activateLink(pagLinks[0]); // add class to first page link
+    paginateStudents(1); // set 1st page list of students as default on page load
 };
