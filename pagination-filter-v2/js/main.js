@@ -48,7 +48,7 @@ function addPaginationLinks() {
     paginationDiv.appendChild(newUl);
 }
 
-function activateLink(link, thisThing) {
+function activateLink(clickedLink) {
     // remove active class from all links
     for (var i = 0; i < pagLinks.length; ++i) {
         var link = pagLinks[i];
@@ -56,8 +56,11 @@ function activateLink(link, thisThing) {
     }
 
     // add active class to the clicked link
-    thisThing.classList.add('active');
-    paginateStudents(parseInt(link.dataset.group));
+    clickedLink.classList.add('active');
+
+    if (paginationDiv) {
+        paginateStudents(parseInt(clickedLink.dataset.group));
+    }
 }
 
 function paginateStudents(pagNum) {
@@ -139,19 +142,22 @@ function clearStudents() {
 function searchFilter() {
     var searchTerm = document.getElementById('js-search-box').value, // get text that user typed in search box
         errorMsgNode = document.createTextNode('Sorry, there are no matches.'),
-        errorMsgLi = document.createElement('li');
+        errorMsgLi = document.createElement('li'),
+        errorMsg = document.getElementById('js-search-box-error-msg');
 
     errorMsgLi.id = 'js-search-box-error-msg';
     searchTerm = searchTerm.toLowerCase();
 
     // matches is an array
     var matches = studentsArray.filter(function(el) {
-        return (el.getElementsByTagName('h3')[0].textContent === searchTerm);
+        var nameArr = el.getElementsByTagName('h3')[0].textContent;
+        return (nameArr.indexOf(searchTerm) >= 0);
     });
 
-    // check if there are matches
+    // check if field is empty
     if (searchTerm !== '') {
-        if (matches.length === 0) {
+        // if field is filled out, there are no matches, and an error msg doesn't exist
+        if (matches.length === 0 && !errorMsg) {
             // hide the student list
             clearStudents();
 
@@ -160,7 +166,7 @@ function searchFilter() {
 
             // insert error msg li into page
             students.appendChild(errorMsgLi);
-        } else { // there are matches
+        } else { // field is filled out and there are matches
             // hide the student list
             clearStudents();
 
@@ -170,17 +176,20 @@ function searchFilter() {
                 matches[i].classList.add('show'); // need to show each match individually
             }
         }
-        // hide page links
+        // hide page links in either scenario
         paginationDiv.classList.add('hide');
     } else { // search field is submitted empty
-        // hide the error msg
-        var errorMsg = document.getElementById('js-search-box-error-msg');
+        // show paginated students again
         if (errorMsg) {
+            // hide the error msg
             errorMsg.classList.add('hide');
-            paginateStudents(1);
-            paginationDiv.classList.remove('hide');
-            paginationDiv.classList.add('show');
         }
+        // show the pagination links
+        paginationDiv.classList.remove('hide');
+        paginationDiv.classList.add('show');
+
+        activateLink(pagLinks[0]);
+        paginateStudents(1);
     }
 }
 
@@ -192,8 +201,9 @@ window.onload = function() {
     // iterate through links and add an event listener on each link that calls activateLink on click
     for (var i = 0; i < pagLinks.length; ++i) {
         var link = pagLinks[i];
-        var thisThing = this;
-        link.addEventListener('click', activateLink(link, thisThing), false);
+        link.addEventListener('click', function() {
+            activateLink(this);
+        }, false);
     }
 
     activateLink(pagLinks[0]); // add class to first page link
