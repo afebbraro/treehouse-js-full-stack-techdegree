@@ -145,30 +145,33 @@ function runningTotal(thisCheckbox) {
 }
 
 function payment() {
+    var selectPayment = document.getElementById('payment'),
+        paypalInfo = document.getElementById('js-paypal-info'),
+        bitcoinInfo = document.getElementById('js-bitcoin-info'),
+        creditCard = document.getElementById('credit-card');
+
     // The "Credit Card" payment option should be selected by default,
-    document.getElementById('payment').value = 'credit card';
-    document.getElementById('js-paypal-info').classList.add('is-hidden');
-    document.getElementById('js-bitcoin-info').classList.add('is-hidden');
+    selectPayment.value = 'credit card';
+    paypalInfo.classList.add('is-hidden');
+    bitcoinInfo.classList.add('is-hidden');
 
     document.getElementById('payment').addEventListener('change', function() {
-        if (document.getElementById('payment').value === 'credit card') {
-            document.getElementById('js-paypal-info').classList.add('is-hidden');
-            document.getElementById('credit-card').classList.remove('is-hidden');
-            document.getElementById('js-bitcoin-info').classList.add('is-hidden');
-        } else if (document.getElementById('payment').value === 'paypal') {
-            console.log('paypal');
-            document.getElementById('js-paypal-info').classList.remove('is-hidden');
-            document.getElementById('js-bitcoin-info').classList.add('is-hidden');
-            document.getElementById('credit-card').classList.add('is-hidden');
+        if (selectPayment.value === 'credit card') {
+            paypalInfo.classList.add('is-hidden');
+            creditCard.classList.remove('is-hidden');
+            bitcoinInfo.classList.add('is-hidden');
+        } else if (selectPayment.value === 'paypal') {
+            paypalInfo.classList.remove('is-hidden');
+            bitcoinInfo.classList.add('is-hidden');
+            creditCard.classList.add('is-hidden');
         } else if (document.getElementById('payment').value === 'bitcoin') {
-            console.log('bitcoin');
-            document.getElementById('js-paypal-info').classList.add('is-hidden');
-            document.getElementById('js-bitcoin-info').classList.remove('is-hidden');
-            document.getElementById('credit-card').classList.add('is-hidden');
+            paypalInfo.classList.add('is-hidden');
+            bitcoinInfo.classList.remove('is-hidden');
+            creditCard.classList.add('is-hidden');
         } else {
-            document.getElementById('js-paypal-info').classList.add('is-hidden');
-            document.getElementById('js-bitcoin-info').classList.add('is-hidden');
-            document.getElementById('credit-card').classList.add('is-hidden');
+            paypalInfo.classList.add('is-hidden');
+            bitcoinInfo.classList.add('is-hidden');
+            creditCard.classList.add('is-hidden');
         }
     })
 }
