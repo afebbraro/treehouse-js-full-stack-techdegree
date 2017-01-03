@@ -16,9 +16,6 @@ window.onload = function() {
             var playerOneBoxes = document.querySelectorAll('.box.box-filled-1'),
                 playerTwoBoxes = document.querySelectorAll('.box.box-filled-2');
 
-            console.log(playerOneBoxes.length);
-            console.log(playerTwoBoxes.length);
-
             if (playerOneBoxes.length + playerTwoBoxes.length === 9) {
                 finishGame(false);
                 emptyBoard();
