@@ -13,21 +13,15 @@ window.onload = function() {
 
         // If all of the squares are filled and no players have three in a row, the game is a tie.
         function isTie() {
-            // Run through the list of boxes
-            for (var i = 0; i < boxesList.children.length; i++) {
-                console.log('first check');
+            var playerOneBoxes = document.querySelectorAll('.box.box-filled-1'),
+                playerTwoBoxes = document.querySelectorAll('.box.box-filled-2');
 
-                // Check if the box is filled
-                if (boxesList.children[i].classList.contains('box-filled-1') || boxesList.children[i].classList.contains('box-filled-2')) {
-                    // Increment the counter
-                    counter ++;
-                    console.log(counter);
-                    // If there are 9 boxes that have one of the classes
-                    if (counter === 9) {
-                        finishGame(false);
-                        emptyBoard();
-                    }
-                }
+            console.log(playerOneBoxes.length);
+            console.log(playerTwoBoxes.length);
+
+            if (playerOneBoxes.length + playerTwoBoxes.length === 9) {
+                finishGame(false);
+                emptyBoard();
             }
         }
 
@@ -82,6 +76,7 @@ window.onload = function() {
                 case boxesList.children[1].classList.contains(player) && boxesList.children[4].classList.contains(player) && boxesList.children[7].classList.contains(player):
                 case boxesList.children[2].classList.contains(player) && boxesList.children[5].classList.contains(player) && boxesList.children[8].classList.contains(player):
                 case boxesList.children[3].classList.contains(player) && boxesList.children[4].classList.contains(player) && boxesList.children[5].classList.contains(player):
+                case boxesList.children[2].classList.contains(player) && boxesList.children[4].classList.contains(player) && boxesList.children[6].classList.contains(player):
                 case boxesList.children[6].classList.contains(player) && boxesList.children[7].classList.contains(player) && boxesList.children[8].classList.contains(player):
                     finishGame(player);
                     emptyBoard();
@@ -116,21 +111,20 @@ window.onload = function() {
         // add 'active' class to player1
         player1.classList.add('active');
 
-        // todo: this function needs rework
-        // for (var i = 0; i < boxesList.children.length; i++) {
-        //     // Show hover image of player's symbol, O or X
-        //     boxesList.children[i].addEventListener('mouseover', function() {
-        //         // Check to see which player is active
-        //         if (!this.classList.contains('box-filled-1') && !this.classList.contains('box-filled-2')) {
-        //             if (player1.classList.contains('active')) {
-        //                 // show 'o' img if player one is active
-        //                 this.style.backgroundImage = "url('img/o.svg')";
-        //             } else {
-        //                 // show 'x' img if player two is active
-        //                 this.style.backgroundImage = "url('img/x.svg')";
-        //             }
-        //         }
-        //     });
+        for (var i = 0; i < boxesList.children.length; i++) {
+            // Show hover image of player's symbol, O or X
+            boxesList.children[i].addEventListener('mouseover', function() {
+                // Check to see which player is active
+                if (!this.classList.contains('box-filled-1') && !this.classList.contains('box-filled-2')) {
+                    if (player1.classList.contains('active')) {
+                        // show 'o' img if player one is active
+                        this.style.backgroundImage = "url('img/o.svg')";
+                    } else {
+                        // show 'x' img if player two is active
+                        this.style.backgroundImage = "url('img/x.svg')";
+                    }
+                }
+            });
 
             // When player stops hovering(mouses out) box, show the original styles of the box
             boxesList.children[i].addEventListener('mouseout', function() {
