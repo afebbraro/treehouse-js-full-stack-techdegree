@@ -160,5 +160,3 @@ window.onload = function() {
         }
     }();
 } //onload
-
-// Use the module pattern to wrap all of your JavaScript code into a single global variable or an immediately invoked function.
