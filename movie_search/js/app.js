@@ -51,7 +51,7 @@ $(function() {
             movieList.append('<li class="no-movies"><i class="material-icons icon-help">help_outline</i>No movies found that match: ' + searchField.val() + '.</li>');
         } else {
             $.each(data.Search, function( i, item ) {
-                var results = '<li>',
+                var results = '<li><a href="http://www.imdb.com/title/'+ item.imdbID +'/">',
                     itemPoster = '<img class="movie-poster" src="'+ item.Poster +'">';
 
                 // Check if there is a poster available
@@ -63,7 +63,7 @@ $(function() {
                            '</div>' + '<span class="movie-title">' + item.Title +
                            '</span>' + '<span class="movie-year">' + item.Year + '</span>';
 
-                results += '</li>';
+                results += '</li></a>';
 
                 // Add movies to movie list
                 movieList.append(results);
