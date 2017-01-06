@@ -1,59 +1,54 @@
-
-// If the search returns no movie data, display the text "No movies found that match: 'title'."
-// See a sample of the code you'll need to display in the index.html comments
-
-
-// #movies <ul>
-// id="search"
-// id="js-no-movies" Display this <li> if the search form returns no movie data
-// id="js-poster-placeholder" Display this placeholder icon if movie returns no movie poster. this icon should replace '<img class="movie-poster" src="">'.
-
 // Shorthand for $( document ).ready()
 $(function() {
-    console.log('js work');
-
     var movieList = $('#movies'),
         searchField = $('#search'),
+        yearField = $('#year'),
         searchBtn = $('#submit'),
         searchDesc = $('#js-search-desc'),
-        noMoviesList = $('#js-no-movies'),
         posterPlaceholder = $('#js-poster-placeholder'),
         imdbURL = 'http://www.omdbapi.com/?';
 
     // Request data from the OMDb API to display movie information
     // The data will return in JSON format by imbd's default setting
     function getMovieData(options) {
-        console.log('geting');
         $.getJSON(imdbURL, options, displayResults)
         .fail(function() {
-            console.log('error');
+            // If the search fails
+            movieList.append('<li class="desc"><i class="material-icons icn-movie">movie</i>Sorry, the search failed. Please try again.</li>');
         });
     }
 
     searchBtn.on('click', function(e) {
         e.preventDefault();
-        var searchVal = searchField.val();
-        console.log(searchVal);
 
+        var searchVal = searchField.val();
+        var yearVal = yearField.val();
+
+        // Check if there's search terms
         if(searchVal) {
             var options = {
                 s: searchVal,
+                y: yearVal,
                 type: 'movie'
             };
+
+            // Hide the standard search msg
             searchDesc.hide();
+
             getMovieData(options);
-        } else {
-            console.log('empty');
+        } else if (searchVal === '') {
+            movieList.empty();
+            // Show the placeholder search info if search is submitted empty
+            movieList.append('<li class="desc" id="js-search-desc"><i class="material-icons icn-movie">movie</i>Search movie titles and TV shows</li>');
         }
     });
 
     function displayResults(data) {
         // Clear out the list
         movieList.empty();
-        console.log(data.Search);
 
-        if (data.Search.length === 0) {
-            noMoviesList.show();
+        if (data.Error === 'Movie not found!') {
+            movieList.append('<li class="no-movies"><i class="material-icons icon-help">help_outline</i>No movies found that match: ' + searchField.val() + '.</li>');
         } else {
             $.each(data.Search, function( i, item ) {
                 var results = '<li>',
@@ -70,6 +65,7 @@ $(function() {
 
                 results += '</li>';
 
+                // Add movies to movie list
                 movieList.append(results);
             });
         }
