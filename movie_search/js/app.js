@@ -1,17 +1,4 @@
-// Use OMDb's 'By Search' parameters to return movie data based on the value of the search field
-// Display search results on the page
-// The data should load inside the #movies <ul>
-// Please see the comments in index.html for samples of the HTML you'll need to dynamically create with JavaScript
-// For each movie returned, render an <li> displaying these items inside:
-// Movie title
-// Year of release
-// Movie poster image
-// Render an <img> that displays a poster image via the src attribute
-// Make sure you use the exact class names provided in the CSS
-// Display a placeholder icon when the API does not return poster data
-// The app should not display broken images when no poster image data is returned
-// If the "Poster" parameter returns "N/A", render the placeholder icon shown in the index.html comments
-// Let users know when search returns no movie data
+
 // If the search returns no movie data, display the text "No movies found that match: 'title'."
 // See a sample of the code you'll need to display in the index.html comments
 
@@ -23,57 +10,68 @@
 
 // Shorthand for $( document ).ready()
 $(function() {
+    console.log('js work');
+
     var movieList = $('#movies'),
-        searchVal = $('#search'),
+        searchField = $('#search'),
+        searchBtn = $('#submit'),
+        searchDesc = $('#js-search-desc'),
         noMoviesList = $('#js-no-movies'),
         posterPlaceholder = $('#js-poster-placeholder'),
-        imdbURL = 'http://www.omdbapi.com/?',
-        options = {
-            s: 'cats',
-            y: 2015,
-            type: 'movie'
-        };
+        imdbURL = 'http://www.omdbapi.com/?';
 
     // Request data from the OMDb API to display movie information
     // The data will return in JSON format by imbd's default setting
-    function getJSON() {
+    function getMovieData(options) {
+        console.log('geting');
         $.getJSON(imdbURL, options, displayResults)
         .fail(function() {
             console.log('error');
         });
     }
 
-    //   <li>
-    //     <div class="poster-wrap">
-    //       <img class="movie-poster" src="http://ia.media-imdb.com/images/M/MV5BMTYwNjAyODIyMF5BMl5BanBnXkFtZTYwNDMwMDk2._V1_SX300.jpg">
-    //     </div>
-    //     <span class="movie-title">Batman</span>
-    //     <span class="movie-year">1989</span>
-    //   </li>
+    searchBtn.on('click', function(e) {
+        e.preventDefault();
+        var searchVal = searchField.val();
+        console.log(searchVal);
+
+        if(searchVal) {
+            var options = {
+                s: searchVal,
+                type: 'movie'
+            };
+            searchDesc.hide();
+            getMovieData(options);
+        } else {
+            console.log('empty');
+        }
+    });
+
     function displayResults(data) {
+        // Clear out the list
+        movieList.empty();
+        console.log(data.Search);
 
+        if (data.Search.length === 0) {
+            noMoviesList.show();
+        } else {
+            $.each(data.Search, function( i, item ) {
+                var results = '<li>',
+                    itemPoster = '<img class="movie-poster" src="'+ item.Poster +'">';
 
-        $.each(data.Search, function( i, item ) {
-            var results = '<li>',
-                itemPoster = item.Poster;
+                // Check if there is a poster available
+                if (item.Poster === 'N/A') {
+                    itemPoster = '<i class="material-icons poster-placeholder" id="js-poster-placeholder">crop_original</i>';
+                }
 
-            // Check if there is a poster available
-            if (item.Poster === 'N/A') {
-                itemPoster = '<i class="material-icons poster-placeholder" id="js-poster-placeholder">crop_original</i>';
-            }
+                results += '<div class="poster-wrap">' + itemPoster +
+                           '</div>' + '<span class="movie-title">' + item.Title +
+                           '</span>' + '<span class="movie-year">' + item.Year + '</span>';
 
-            results += '<div class="poster-wrap">' +
-                       '<img class="movie-poster" src="'+ itemPoster +'">' +
-                       '</div>' + '<span class="movie-title">' + item.Title +
-                       '</span>' + '<span class="movie-year">' + item.Year + '</span>';
+                results += '</li>';
 
-
-            results += '</li>';
-
-            movieList.append(results);
-        });
-
+                movieList.append(results);
+            });
+        }
     }
-
-    getJSON();
 });
