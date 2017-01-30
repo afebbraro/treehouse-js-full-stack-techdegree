@@ -13,6 +13,7 @@
   "author": "Amber Febbraro",
   "license": "ISC",
   "dependencies": {
+    "json2csv": "^3.7.3",
     "scrape-it": "^3.2.2"
   }
 }
