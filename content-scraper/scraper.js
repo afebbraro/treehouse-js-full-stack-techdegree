@@ -27,6 +27,7 @@ if (!fs.existsSync('data/')) {
 }
 
 scrapeIt(baseURL + 'shirts.php', {
+    // Scrape the products for urls
     tshirts: {
         listItem: '.products li',
         data: {
@@ -44,7 +45,7 @@ scrapeIt(baseURL + 'shirts.php', {
     var tshirtURL,
         data = [];
 
-    // Loop through all the tshirts
+    // Loop through all the tshirt list items
     for (var i = 0; i < page.tshirts.length; i++) {
         // Get each tshirt url
         tshirtURL = page.tshirts[i].url;
@@ -61,6 +62,8 @@ scrapeIt(baseURL + 'shirts.php', {
                     attr: 'src'
                 }
         }, (error, tshirtPage) => {
+            console.log(tshirtURL);
+
             // Prepend the original url
             tshirtPage.img = baseURL + tshirtPage.img;
 
@@ -75,7 +78,9 @@ scrapeIt(baseURL + 'shirts.php', {
                 {Title: tshirtPage.title, Price: tshirtPage.price, ImageURL: tshirtPage.img, URL: tshirtURL, Time: 'this is time'}
             );
 
-            // Check if add 8 shirt objects were added to the array
+            //TODO: figure out why tshirtURL is php?id=108 for every shirt, and get the time
+
+            // Check if all 8 shirt objects were added to the array
             if (Object.keys(data).length === 8) {
                 var fields = ['Title', 'Price', 'ImageURL', 'URL', 'Time'];
 
