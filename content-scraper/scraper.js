@@ -13,12 +13,14 @@ function getDate() {
 
     // 2017-01-30
     year = date.getFullYear();
-    month = '-' + date.getMonth() + 1;
+    month = '-' + (date.getMonth() + 1);
     day = '-' + date.getDate();
 
     date = year + month + day;
     return date;
 }
+
+
 
 // Check for a folder called ‘data’.
 if (!fs.existsSync('data/')) {
@@ -37,11 +39,7 @@ scrapeIt(baseURL + 'shirts.php', {
                }
         }
     }
-}, (err, page) => {
-    if (err) {
-        console.log("There’s been a 404 error. Cannot connect to" + baseURL);
-    }
-
+}).then(page => {
     var tshirtURL,
         data = [];
 
@@ -62,7 +60,7 @@ scrapeIt(baseURL + 'shirts.php', {
                     attr: 'src'
                 }
         }, (error, tshirtPage) => {
-            console.log(tshirtURL);
+            // console.log(tshirtURL);
 
             // Prepend the original url
             tshirtPage.img = baseURL + tshirtPage.img;
@@ -93,5 +91,9 @@ scrapeIt(baseURL + 'shirts.php', {
                 });
             }
         });
+    }
+}).catch(function(err) {
+    if (err.code === 'ENOTFOUND') {
+        console.log("There’s been a 404 error. Cannot connect to" + baseURL);
     }
 });
