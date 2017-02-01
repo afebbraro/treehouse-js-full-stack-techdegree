@@ -9,18 +9,28 @@ function getDate() {
     var date = new Date(),
         year,
         month,
-        day;
+        day,
+        time;
 
     // 2017-01-30
     year = date.getFullYear();
     month = '-' + (date.getMonth() + 1);
     day = '-' + date.getDate();
 
+    time = (date.getHours() - 12) + ':' + date.getMinutes() + ':' + date.getSeconds();
+
     date = year + month + day;
+
     return date;
 }
 
+function getTime() {
+    var datetime = new Date(),
+        time;
+    time = (datetime.getHours() > 12 ? (datetime.getHours() - 12): datetime.getHours()) + ':' + (datetime.getMinutes() < 10 ? ('0' + datetime.getMinutes()): datetime.getMinutes()) + ':' + (datetime.getSeconds() < 10 ? ('0' + datetime.getSeconds()): datetime.getSeconds());
 
+    return time;
+}
 
 // Check for a folder called ‘data’.
 if (!fs.existsSync('data/')) {
@@ -73,15 +83,16 @@ scrapeIt(baseURL + 'shirts.php', {
 
             // They should be in this order: Title, Price, ImageURL, URL, and Time
             data.push(
-                {Title: tshirtPage.title, Price: tshirtPage.price, ImageURL: tshirtPage.img, URL: tshirtURL, Time: 'this is time'}
+                {Title: tshirtPage.title, Price: tshirtPage.price, ImageURL: tshirtPage.img, URL: tshirtURL, Time: getTime()}
             );
 
-            //TODO: figure out why tshirtURL is php?id=108 for every shirt, and get the time
+            //TODO: figure out why tshirtURL is php?id=108 for every shirt
 
             // Check if all 8 shirt objects were added to the array
             if (Object.keys(data).length === 8) {
                 var fields = ['Title', 'Price', 'ImageURL', 'URL', 'Time'];
 
+                // Send json2csv the data array of shirts and column headings(fields)
                 var csv = json2csv({ data: data, fields: fields });
 
                 // Create the CSV file inside the data dir using the current date
