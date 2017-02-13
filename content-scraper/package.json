@@ -4,7 +4,7 @@
   "description": "A node.js command line application that goes to an ecommerce site built by team treehouse to get the latest tshirt prices and saves them to a spreadsheet.",
   "main": "scraper.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node scraper.js"
   },
   "repository": {
     "type": "git",
