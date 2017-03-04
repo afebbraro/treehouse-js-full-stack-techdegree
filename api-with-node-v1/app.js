@@ -7,7 +7,10 @@ var express = require('express'),
     config = require('./static/js/config.js');
 
 var ob = {
-    "cats": 123
+    myProfileInfo: null,
+    myTweets: [],
+    myFriends: [],
+    myMessages: []
 };
 
 // Set express to serve static files
@@ -40,9 +43,11 @@ var T = new Twit({
 T.get('users/lookup', {
     screen_name: 'afebbraro'
 },  function (err, myUserData, response) {
-    ob.myScreenName = myUserData[0].screen_name;
-    ob.myProfileImg = myUserData[0].profile_image_url_https;
-    ob.myRealName = myUserData[0].name;
+    ob['myProfileInfo'] = {
+        myScreenName: myUserData[0].screen_name,
+        myProfileImg: myUserData[0].profile_image_url_https,
+        myRealName: myUserData[0].name
+    };
 });
 
 //
@@ -53,11 +58,21 @@ T.get('direct_messages', {
 },  function (err, data, response) {
     // Iterate through the messages array to get the five messages
     for (var i = 0; i < data.length; i++) {
-        console.log(data[i].text); // Message body
-        console.log(data[i].created_at); // Date Sent TODO: pull out date
-        console.log(data[i].created_at); // Time Sent TODO: pull out time
-        console.log(data[i].sender_screen_name); // Sender
+        var foo = {};
+        foo.messageSenderBody = data[i].text; // Message body
+        foo.messageSenderSentDate = data[i].sender.created_at; // Date Sent TODO: pull out date
+        foo.messageSenderSentTime = data[i].sender.created_at; // Time Sent TODO: pull out time
+        foo.messageSender = ' ' + data[i].sender_screen_name; // Sender
+        foo.messageSenderProfileImg = data[i].sender.profile_image_url;
 
+        foo.messageRecipientBody = data[i].recipient.text; // Message body
+        foo.messageRecipientSentDate = data[i].recipient.created_at; // Date Sent TODO: pull out date
+        foo.messageRecipientSentTime = data[i].recipient.created_at; // Time Sent TODO: pull out time
+        foo.messageRecipient = ' ' + data[i].recipient_screen_name; // Sender
+        foo.messageRecipientProfileImg = data[i].recipient.profile_image_url;
+
+        ob['myMessages'].push(foo);
+        console.log(ob);
     }
 });
 
@@ -69,10 +84,12 @@ T.get('statuses/user_timeline', {
     count: 5
 },  function (err, data, response) {
     for (var i = 0; i < data.length; i++) {
-        ob.myTweetText = data[i].text; // Message content
-        ob.myTweetRetweetCount = data[i].retweet_count; // # of retweets
-        ob.myTweetSentAt = data[i].created_at; // Date tweeted
-        ob.myTweetNumOfLikes = data[i].favorite_count; // # of likes
+        ob['myTweets'].push({
+            myTweetText: data[i].text, // Message content
+            myTweetRetweetCount: data[i].retweet_count, // # of retweets
+            myTweetSentAt: data[i].created_at, // Date tweeted
+            myTweetNumOfLikes: data[i].favorite_count // # of likes
+        });
     }
 });
 
@@ -82,22 +99,30 @@ T.get('statuses/user_timeline', {
 T.get('friends/ids', {
     count: 5 // Specify # we want
 },  function (err, data, response) {
-    // Iterate through the ids array to get the five ids
+    if (err) {
+        console.log(err);
+        return;
+    }
+    // Callback func
+    // Iterate through the ids array five times to get all ids
     for (var i = 0; i < data.ids.length; i++) {
         // Pass the five ids along to lookup user info for each one
         T.get('users/lookup', {
             count: 5,
-            user_id: data.ids[i]
+            user_id: data.ids[i] // Lookup users 0 - 4
         },  function (err, userData, response) {
+            // Loop through the 5 sets of user data 5 times
             for (var i = 0; i < userData.length; i++) {
-                // Screen name
-                ob.myFriendsScreenName = userData[i].screen_name;
+                var bar = {};
+                // Screen name from each user
+                bar.myFriendsScreenName = userData[i].screen_name;
+                // Real name from each user
+                bar.myFriendsName = userData[i].name;
+                // Profile image from eash user
+                bar.myFriendsProfileImg = userData[i].profile_background_image_url_https;
 
-                // Real name
-                ob.myFriendsName = userData[i].name;
-
-                // Profile image
-                ob.myFriendsProfileImg = userData[i].profile_background_image_url_https;
+                ob['myFriends'].push(bar);
+                console.log(ob.myFriends[0].myFriendsProfileImg)
             }
         });
     }
