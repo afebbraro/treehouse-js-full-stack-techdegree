@@ -22,7 +22,7 @@ html(lang='en')
     link(href='https://fonts.googleapis.com/css?family=Work+Sans:400,600', rel='stylesheet', type='text/css')
     link(rel='stylesheet', href='css/global.css')
   body
-    header.circle--header
+    header.circle--header(style='background-image: url('+ ob['myProfileInfo'].myProfileBgImg +')')
       .bounds
         .circle--fluid
           .circle--fluid--cell
@@ -36,12 +36,12 @@ html(lang='en')
                 li
                   a Sign Out
     .app--tweet
-      form
+      form(method=post action='/tweet')
         .circle--fluid
           .circle--fluid--cell.circle--fluid--primary.align-bottom.app--tweet--post
             .app--avatar(style='background-image: url('+ ob['myProfileInfo'].myProfileImg +')')
               img(src=ob['myProfileInfo'].myProfileImg)
-            textarea#tweet-textarea.circle--textarea--input(placeholder="What's happening?")
+            textarea#tweet-textarea.circle--textarea--input(placeholder="What's happening?" name="tweet")
             |
             strong#tweet-char.app--tweet--char 140
           .circle--fluid--cell.align-bottom
@@ -99,7 +99,7 @@ html(lang='en')
                       a.app--tweet--author
                         .app--avatar(style='background-image: url('+ ob['myFriends'][val].myFriendsProfileImg +')')
                           img(src=ob['myFriends'][val].myFriendsProfileImg)
-                        h4 #{ob['myFriends'][val].myFriendsName }
+                        h4 #{ob['myFriends'][val].myFriendsName}
                         p #{ob['myFriends'][val].myFriendsScreenName}
                     .circle--fluid--cell
                       if(ob['myFriends'][val].myFriendsFollowingStatus === true)

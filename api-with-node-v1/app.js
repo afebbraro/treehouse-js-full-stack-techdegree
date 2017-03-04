@@ -5,7 +5,8 @@ var express = require('express'),
     Twit = require('twit'),
     path = require('path'),
     config = require('./static/js/config.js'),
-    moment = require('moment');
+    moment = require('moment'),
+    bodyParser = require('body-parser');
 
 var ob = {
     myProfileInfo: null,
@@ -14,15 +15,30 @@ var ob = {
     myMessages: []
 };
 
+app.use(bodyParser.json()); // Support json encoded bodies
+app.use(bodyParser.urlencoded({ extended: true })); // Support encoded bodies
+
 // Set express to serve static files
 app.set('view engine', 'pug');
 app.use(express.static(path.join(__dirname, 'static')));
 app.set('views', __dirname + '/templates');
 
 
-// Create route
+// Create main route
 app.get('/', function(req, res){
     res.render('index', {ob:ob});
+});
+
+
+// Create route
+app.get('/tweet', function(req, res) {
+    var tweetStatus = req.query.tweet;
+    postTweet(tweetStatus);
+    res.render('index', {ob:ob});
+});
+
+app.post('/tweet', function(req, res) {
+
 });
 
 // Setup dev server
@@ -35,7 +51,7 @@ var T = new Twit({
     consumer_secret:     config.consumer_secret,
     access_token:        config.access_token,
     access_token_secret: config.access_token_secret,
-    timeout_ms:          600*1000,  // optional HTTP request timeout to apply to all requests.
+    timeout_ms:          600*1000,  // Optional HTTP request timeout to apply to all requests
 });
 
 //
@@ -44,10 +60,16 @@ var T = new Twit({
 T.get('users/lookup', {
     screen_name: 'afebbraro'
 },  function (err, myUserData, response) {
+    if (err) {
+        console.log(err);
+        return;
+    }
+
     ob['myProfileInfo'] = {
         myScreenName: myUserData[0].screen_name,
         myProfileImg: myUserData[0].profile_image_url_https,
-        myRealName: myUserData[0].name
+        myRealName: myUserData[0].name,
+        myProfileBgImg: myUserData[0].profile_banner_url
     };
 });
 
@@ -57,12 +79,17 @@ T.get('users/lookup', {
 T.get('direct_messages', {
     count: 5
 },  function (err, data, response) {
+    if (err) {
+        console.log(err);
+        return;
+    }
+
     // Iterate through the messages array to get the five messages
     for (var i = 0; i < data.length; i++) {
         ob['myMessages'].push({
             messageSenderBody: data[i].text, // Message body
-            messageSenderSentDate: moment(data[i].created_at).format('MMMM Do YYYY, h:mm:ss a'), // Time Sent TODO: pull out time
-            messageSender: ' ' + data[i].sender_screen_name, // Sender
+            messageSenderSentDate: moment(data[i].created_at).format('MMMM Do YYYY, h:mm:ss a'),
+            messageSender: ' ' + data[i].sender_screen_name,
             messageSenderProfileImg: data[i].sender.profile_image_url
         });
     }
@@ -75,6 +102,11 @@ T.get('statuses/user_timeline', {
     screen_name: 'afebbraro',
     count: 5
 },  function (err, data, response) {
+    if (err) {
+        console.log(err);
+        return;
+    }
+
     for (var i = 0; i < data.length; i++) {
         ob['myTweets'].push({
             myTweetText: data[i].text, // Message content
@@ -89,7 +121,7 @@ T.get('statuses/user_timeline', {
 // Get your 5 most recent friends
 //
 T.get('friends/ids', {
-    count: 5 // Specify # we want
+    count: 5 // Specify # we want to get
 },  function (err, data, response) {
     if (err) {
         console.log(err);
@@ -112,7 +144,7 @@ T.get('friends/ids', {
                     myFriendsName: userData[i].name,
                     // Profile image from eash user
                     myFriendsProfileImg: userData[i].profile_background_image_url_https,
-
+                    // Am I following them
                     myFriendsFollowingStatus: userData[i].following
                 });
             }
@@ -120,7 +152,11 @@ T.get('friends/ids', {
     }
 });
 
-// // EXTRA CREDIT
-// // Add a section to the bottom of your page that allows a user to post a new tweet.
-// // Add an error page to your application, so that if anything goes wrong with your routes, the user will see a friendly message rendered, instead of the default error code.
-// // Include your personal background image from Twitter as a background for the page header.
+//
+// Post a Tweet
+//
+function postTweet(tweetStatus) {
+    T.post('statuses/update', {status: tweetStatus}, function (err, tweetData, response) {
+            console.log('Tweet posted!!');
+    });
+}
