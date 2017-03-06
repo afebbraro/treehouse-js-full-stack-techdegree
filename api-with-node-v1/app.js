@@ -74,7 +74,7 @@ T.get('users/lookup', {
 });
 
 //
-// Get your 5 most recent private messages
+// Get your 5 most recent received private messages
 //
 T.get('direct_messages', {
     count: 5
