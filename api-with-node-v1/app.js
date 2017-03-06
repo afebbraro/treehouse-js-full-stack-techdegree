@@ -88,7 +88,7 @@ T.get('direct_messages', {
     for (var i = 0; i < data.length; i++) {
         ob['myMessages'].push({
             messageSenderBody: data[i].text, // Message body
-            messageSenderSentDate: moment(data[i].created_at).format('MMMM Do YYYY, h:mm:ss a'),
+            messageSenderSentDate: moment(data[i].created_at, 'ddd MMM DD HH:mm:ss Z YYYY').fromNow(),
             messageSender: ' ' + data[i].sender_screen_name,
             messageSenderProfileImg: data[i].sender.profile_image_url
         });
