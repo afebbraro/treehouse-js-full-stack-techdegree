@@ -4,11 +4,17 @@ var gulp = require('gulp'),
     clean = require('gulp-clean'),
     sass = require('gulp-sass'),
     image = require('gulp-image'),
+    browserSync = require('browser-sync').create(),
+    runSequence = require('run-sequence'),
+    sourcemaps = require('gulp-sourcemaps'),
+    autoprefixer = require('gulp-autoprefixer'),
     options = {
         jsSrc: './js/**/*.js',
         scssSrc: './sass/**/*.scss',
         imgSrc: './images/*',
-        dist: 'dist/'
+        maps: './maps',
+        dist: 'dist/',
+        app: './'
     };
 
 gulp.task('copy', function () {
@@ -19,40 +25,60 @@ gulp.task('copy', function () {
 // Concatenate js files, save to dist, minify, then save again
 gulp.task('scripts', function() {
   return gulp.src(options.jsSrc)
+             .pipe(sourcemaps.init())
              .pipe(concat('all.min.js'))
              .pipe(gulp.dest(options.dist + '/scripts'))
              .pipe(uglify())
-             .pipe(gulp.dest(options.dist + '/scripts'));
+             .pipe(sourcemaps.write(options.maps))
+             .pipe(gulp.dest(options.dist + '/scripts'))
+             .pipe(browserSync.reload({
+                stream: true
+             }));
 });
 
-// As a developer, I should be able to run
-// the gulp styles command at the command line to
-// compile the project’s SCSS files into CSS, then
-// concatenate and minify into an all.min.css file
-// that is then copied to the dist/styles folder.
-// Compile scss into css, minify (compressed), then save to dist
 gulp.task('styles', function () {
   return gulp.src(options.scssSrc)
+             .pipe(sourcemaps.init())
              .pipe(sass({outputStyle: 'compressed'}).on('error', sass.logError))
+             .pipe(autoprefixer())
              .pipe(concat('all.min.css'))
+             .pipe(sourcemaps.write(options.maps))
              .pipe(gulp.dest(options.dist + '/styles'))
 });
 
-// As a developer, I should be able to run the gulp
-// images command at the command line to optimize the size of the
-// project’s JPEG and PNG files, and then copy those optimized
-// images to the dist/content folder.
 gulp.task('images', function () {
   gulp.src(options.imgSrc)
-    .pipe(image())
-    .pipe(gulp.dest(options.dist + '/content'));
+      .pipe(image())
+      .pipe(gulp.dest(options.dist + '/content'));
 });
 
-gulp.task('sass:watch', function () {
-    gulp.watch(options.scssSrc, ['styles']);
+gulp.task('watch',  ['serve'], function () {
+    gulp.watch(options.jsSrc, ['scripts']);
 });
 
 gulp.task('clean', function () {
     return gulp.src(options.dist, {read: false})
                .pipe(clean());
 });
+
+// As a developer, when I run the gulp scripts or
+// gulp styles commands at the command line, source
+// maps are generated for the JavaScript and CSS files respectively.
+
+gulp.task('build', function (callback) {
+    runSequence('clean',
+       ['styles', 'scripts', 'images'],
+       callback
+    );
+});
+
+gulp.task('serve', ['build'], function() {
+  browserSync.init({
+    server: {
+      baseDir: options.app
+    },
+  })
+});
+
+// Run the gulp command at the command line to run the “build” task
+gulp.task('default', ['build']);
