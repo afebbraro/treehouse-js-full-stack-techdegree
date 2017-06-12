@@ -47,7 +47,7 @@ service('dataService', function($http) {
     // DELETE /api/recipes/{id} - Deletes the recipe for the specified ID.
     this.deleteRecipe = function(callback) {
 
-        console.log('the' + recipe.name + 'has been deleted!');
+        console.log('the' + 'has been deleted!');
         // $http.delete('/api/{id}')
         // .then(callback);
     }
